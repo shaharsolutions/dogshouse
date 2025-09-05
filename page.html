@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>פנסיון־נט - כל מה שפנסיון צריך במקום אחד</title>
+  <style>
+    body {
+      font-family: Heebo, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #fdfdfd;
+      color: #333;
+    }
+    header {
+      background-color: #2196f3;
+      color: white;
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+    }
+    header p {
+      font-size: 1.2rem;
+    }
+    .hero {
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    .hero img {
+      max-width: 300px;
+      border-radius: 1rem;
+    }
+    .hero h2 {
+      font-size: 2rem;
+      margin-top: 1rem;
+    }
+    .hero p {
+      font-size: 1.1rem;
+      margin-top: 0.5rem;
+    }
+    .cta-button {
+      background-color: #ff9800;
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      margin-top: 1.5rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+    }
+    .form-section {
+      background-color: #f1f1f1;
+      padding: 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .form-section h3 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+    form {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    input, textarea {
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 0.4rem;
+    }
+    button[type="submit"] {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      padding: 0.75rem;
+      font-size: 1.1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background-color: #eee;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>פנסיון־נט</h1>
+    <p>כל מה שפנסיון צריך – במקום אחד</p>
+  </header>
+
+  <div class="hero">
+    <img src="https://cdn.pixabay.com/photo/2023/03/01/11/53/dog-7823096_1280.png" alt="איור כלב מקצועי">
+    <h2>מערכת ניהול פנסיון מתקדמת</h2>
+    <p>ניהול קל, מהיר וחכם של כל ההזמנות, הכלבים, הלקוחות והצוות - דרך דפדפן אחד</p>
+    <button class="cta-button" onclick="document.getElementById('form').scrollIntoView({ behavior: 'smooth' })">התחל עכשיו</button>
+  </div>
+
+  <div class="form-section" id="form">
+    <h3>רוצים לראות את פנסיון־נט בפעולה?</h3>
+    <form>
+      <input type="text" placeholder="שם מלא" required>
+      <input type="email" placeholder="כתובת מייל" required>
+      <input type="tel" placeholder="טלפון ליצירת קשר" required>
+      <textarea placeholder="ספרו לנו קצת על הפנסיון שלכם..." rows="4"></textarea>
+      <button type="submit">שלחו לי מידע נוסף</button>
+    </form>
+  </div>
+
+  <footer>
+    &copy; 2025 פנסיון־נט. כל הזכויות שמורות.
+  </footer>
+</body>
+</html>
