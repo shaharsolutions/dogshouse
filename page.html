@@ -12,6 +12,9 @@
       background-color: #fdfdfd;
       color: #333;
     }
+    ::placeholder {
+      text-align: right;
+    }
     header {
       background-color: #2196f3;
       color: white;
@@ -119,5 +122,35 @@
   <footer>
     &copy; 2025 פנסיון־נט. כל הזכויות שמורות.
   </footer>
+  <script>
+    document.querySelector('form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const data = {
+        name: form[0].value,
+        email: form[1].value,
+        phone: form[2].value,
+        message: form[3].value
+      };
+
+      try {
+        const response = await fetch('https://script.google.com/macros/s/AKfycbwhdv4s2BWLS-Z9QsvRqBSGk6ODoQyUVKu_t4gfsp-WMqSKSY4c_SUtz1nyTOh5IaYQ/exec', {
+          method: 'POST',
+          body: JSON.stringify(data),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const text = await response.text();
+        alert('הפרטים נשלחו בהצלחה!');
+        form.reset();
+      } catch (error) {
+        alert('אירעה שגיאה בשליחה.');
+        console.error(error);
+      }
+    });
+  </script>
 </body>
 </html>
