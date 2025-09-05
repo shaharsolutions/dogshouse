@@ -24,7 +24,8 @@
     .container {
       margin: 30px auto;
       padding: 20px;
-      max-width: 1000px;
+      max-width: 100%;
+      width: 95%;
       background: #fff;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -34,7 +35,7 @@
     table {
       border-collapse: collapse;
       width: 100%;
-      min-width: 1000px;
+      min-width: 1200px;
       border-radius: 12px;
       border: 1px solid #ccc;
     }
@@ -86,18 +87,51 @@
     }
 
     textarea.admin-note {
-      width: 95%;
-      min-height: 40px;
+      width: 100%;
+      max-width: 300px;
+      overflow-x: auto;
+      overflow-y: auto;
+      resize: none;
       font-size: 12px;
       padding: 8px;
       box-sizing: border-box;
-      resize: vertical;
       font-family: Arial, sans-serif;
+      height: auto;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-break: break-word;
+      word-wrap: break-word;
+      cols: 50;
+      rows: 2;
+    }
+
+    textarea.admin-note {
+      display: block;
+      width: 80ch;
+      max-width: 100%;
+      font-family: monospace;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    textarea.admin-note::after {
+      content: '';
+      display: block;
+      width: 100%;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .manager-note-column {
+      min-width: 50px;
+      max-width: 300px;
+      width: 50px;
     }
 
     #currentDogsContainer {
       margin: 20px auto;
-      max-width: 1000px;
+      max-width: 1200px;
       background: #fff;
       padding: 16px 24px;
       border-radius: 12px;
@@ -112,6 +146,32 @@
     #currentDogsList {
       list-style-type: disc;
       padding-right: 20px;
+    }
+
+    .wide-date-column {
+      min-width: 140px;
+      white-space: nowrap;
+    }
+
+    .status-approved {
+      color: green;
+      font-weight: bold;
+    }
+
+    .status-cancelled {
+      color: red;
+      font-weight: bold;
+    }
+
+    /* --- Loading animation for save button --- */
+    .loading::after {
+      content: " ⏳";
+      animation: blink 1s infinite;
+    }
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
     }
 
     @media (max-width: 600px) {
@@ -139,26 +199,53 @@
   </div>
 
   <div class="container">
-    <table id="ordersTable">
-      <thead>
-        <tr>
-          <th>מועד הזמנה</th>
-          <th>שם הבעלים</th>
-          <th>טלפון</th>
-          <th>כניסה</th>
-          <th>יציאה</th>
-          <th>שם הכלב</th>
-          <th>גיל</th>
-          <th>גזע</th>
-          <th>הערות</th>
-          <th>מסורס / מעוקרת</th>
-          <th>סטטוס</th>
-          <th>הערות מנהל</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+  <h3>הזמנות</h3>
+  <table id="futureOrdersTable">
+    <thead>
+      <tr>
+        <th>מועד הזמנה</th>
+        <th>שם הבעלים</th>
+        <th>טלפון</th>
+        <th class="wide-date-column">כניסה</th>
+        <th class="wide-date-column">יציאה</th>
+        <th>שם הכלב</th>
+        <th>גיל</th>
+        <th>גזע</th>
+        <th>הערות</th>
+        <th>מסורס / מעוקרת</th>
+        <th>סטטוס</th>
+        <th class="manager-note-column">הערות מנהל</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <div style="text-align:center; margin-top:20px">
+    <button id="saveButton">שמירה</button>
   </div>
+</div>
+
+<div class="container">
+  <h3>היסטוריית הזמנות</h3>
+  <table id="pastOrdersTable">
+    <thead>
+      <tr>
+        <th>מועד הזמנה</th>
+        <th>שם הבעלים</th>
+        <th>טלפון</th>
+        <th class="wide-date-column">כניסה</th>
+        <th class="wide-date-column">יציאה</th>
+        <th>שם הכלב</th>
+        <th>גיל</th>
+        <th>גזע</th>
+        <th>הערות</th>
+        <th>מסורס / מעוקרת</th>
+        <th>סטטוס</th>
+        <th class="manager-note-column">הערות מנהל</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
 
   <script>
     function formatDateTime(dateStr) {
@@ -175,88 +262,74 @@
       const d = new Date(dateStr);
       if (isNaN(d)) return dateStr;
       const pad = (n) => n.toString().padStart(2, '0');
-      return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+      const dayName = d.toLocaleDateString('he-IL', { weekday: 'long' });
+      return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} (${dayName})`;
     }
 
-    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyzD8yCSn6HQrCvHZcQCTMknVIvV37cWsQT6UsxjKJaERDLW5yR7W-0vhu7stPbV-p_CA/exec';
+    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxt9zQ10Gnb0NoJujKItkoO8z_Rnb_bJ_1ancMtaPwHeby0gwn68cJZyOzdvh7uM2FD6w/exec';
 
     fetch(SHEET_URL)
       .then(res => res.json())
       .then(data => {
-        const tbody = document.querySelector("#ordersTable tbody");
+        const futureTbody = document.querySelector("#futureOrdersTable tbody");
+        const pastTbody = document.querySelector("#pastOrdersTable tbody");
 
         data.forEach((row, index) => {
-          const tr = document.createElement("tr");
-
-          tr.innerHTML = `
-            <td>${formatDateTime(row.orderDate)}</td>
-            <td>${row.ownerName || ''}</td>
-            <td>${row.phone || ''}</td>
-            <td>${formatDateOnly(row.checkIn)}</td>
-            <td>${formatDateOnly(row.checkOut)}</td>
-            <td>${row.dogName || ''}</td>
-            <td>${row.dogAge || ''}</td>
-            <td>${row.dogBreed || ''}</td>
-            <td>${row.notes || ''}</td>
-            <td>${row.neutered || ''}</td>
-            <td>
-              <select data-index="${index}">
-                <option value="ממתין" ${row.status === "ממתין" ? "selected" : ""}>ממתין</option>
-                <option value="מאושר" ${row.status === "מאושר" ? "selected" : ""}>מאושר</option>
-                <option value="בוטל" ${row.status === "בוטל" ? "selected" : ""}>בוטל</option>
-              </select>
-            </td>
-            <td>
-              <textarea class="admin-note" data-index="${index}">${row.adminNote || ''}</textarea>
-            </td>
-          `;
-
-          tbody.appendChild(tr);
-        });
-
-        // סטטוס
-        document.querySelectorAll("select").forEach(select => {
-          select.addEventListener("change", async (e) => {
-            const index = e.target.dataset.index;
-            const status = e.target.value;
-            const adminNote = document.querySelector(`textarea.admin-note[data-index="${index}"]`).value;
-
-            await fetch(SHEET_URL, {
-              method: "POST",
-              body: JSON.stringify({
-                mode: "update",
-                index,
-                status,
-                adminNote
-              })
-            });
-          });
-        });
-
-        // הערת מנהל
-        document.querySelectorAll("textarea.admin-note").forEach(textarea => {
-          textarea.addEventListener("blur", async (e) => {
-            const index = e.target.dataset.index;
-            const adminNote = e.target.value;
-            const status = document.querySelector(`select[data-index="${index}"]`).value;
-
-            await fetch(SHEET_URL, {
-              method: "POST",
-              body: JSON.stringify({
-                mode: "update",
-                index,
-                status,
-                adminNote
-              })
-            });
-          });
+          const now = new Date();
+          const checkOut = new Date(row.checkOut);
+          let tr = document.createElement("tr");
+          if (checkOut >= now) {
+            // Future orders: use <select> for status
+            tr.innerHTML = `
+              <td>${formatDateTime(row.orderDate)}</td>
+              <td>${row.ownerName || ''}</td>
+              <td>${row.phone || ''}</td>
+              <td class="wide-date-column">${formatDateOnly(row.checkIn)}</td>
+              <td class="wide-date-column">${formatDateOnly(row.checkOut)}</td>
+              <td>${row.dogName || ''}</td>
+              <td>${row.dogAge || ''}</td>
+              <td>${row.dogBreed || ''}</td>
+              <td>${row.notes || ''}</td>
+              <td>${row.neutered || ''}</td>
+              <td>
+                <select data-index="${index}" class="${row.status === 'מאושר' ? 'status-approved' : row.status === 'בוטל' ? 'status-cancelled' : ''}">
+                  <option value="ממתין" ${row.status === "ממתין" ? "selected" : ""}>ממתין</option>
+                  <option value="מאושר" ${row.status === "מאושר" ? "selected" : ""}>מאושר</option>
+                  <option value="בוטל" ${row.status === "בוטל" ? "selected" : ""}>בוטל</option>
+                </select>
+              </td>
+              <td class="manager-note-column">
+                <textarea class="admin-note" data-index="${index}" cols="50" rows="2">${row.adminNote || ''}</textarea>
+              </td>
+            `;
+            futureTbody.appendChild(tr);
+          } else {
+            // Past orders: use plain text for status
+            tr.innerHTML = `
+              <td>${formatDateTime(row.orderDate)}</td>
+              <td>${row.ownerName || ''}</td>
+              <td>${row.phone || ''}</td>
+              <td class="wide-date-column">${formatDateOnly(row.checkIn)}</td>
+              <td class="wide-date-column">${formatDateOnly(row.checkOut)}</td>
+              <td>${row.dogName || ''}</td>
+              <td>${row.dogAge || ''}</td>
+              <td>${row.dogBreed || ''}</td>
+              <td>${row.notes || ''}</td>
+              <td>${row.neutered || ''}</td>
+              <td class="${row.status === 'מאושר' ? 'status-approved' : row.status === 'בוטל' ? 'status-cancelled' : ''}">${row.status || ''}</td>
+              <td class="manager-note-column">
+                <textarea class="admin-note" data-index="${index}" cols="50" rows="2">${row.adminNote || ''}</textarea>
+              </td>
+            `;
+            pastTbody.appendChild(tr);
+          }
         });
 
         const currentDogs = data.filter(row => {
           const now = new Date();
           const checkIn = new Date(row.checkIn);
           const checkOut = new Date(row.checkOut);
-          return checkIn <= now && checkOut >= now;
+          return row.status === "מאושר" && checkIn <= now && checkOut >= now;
         });
 
         const dogsList = document.getElementById('currentDogsList');
@@ -264,6 +337,147 @@
           const li = document.createElement('li');
           li.textContent = `${row.dogName || 'ללא שם'} (${row.ownerName || 'ללא בעלים'})`;
           dogsList.appendChild(li);
+        });
+
+        document.querySelectorAll('textarea.admin-note').forEach(textarea => {
+          const adjustWidth = () => {
+            textarea.style.width = '80ch';
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+          };
+
+          adjustWidth();
+          textarea.addEventListener('input', adjustWidth);
+
+          textarea.setAttribute('maxlength', '500');
+          textarea.style.wordBreak = 'break-word';
+          textarea.style.whiteSpace = 'pre-wrap';
+          textarea.style.overflowWrap = 'break-word';
+        });
+
+        document.getElementById('saveButton').addEventListener('click', async () => {
+          const saveBtn = document.getElementById('saveButton');
+          saveBtn.classList.add('loading');
+          const rows = document.querySelectorAll('#futureOrdersTable tbody tr');
+          for (const row of rows) {
+            const index = row.querySelector('select')?.dataset?.index;
+            const status = row.querySelector('select')?.value;
+            const adminNote = row.querySelector('textarea.admin-note')?.value;
+
+            await fetch(SHEET_URL, {
+              method: "POST",
+              body: JSON.stringify({
+                mode: "update",
+                index,
+                status,
+                adminNote
+              })
+            });
+
+            const select = row.querySelector('select');
+            select.classList.remove('status-approved', 'status-cancelled');
+            if (status === 'מאושר') select.classList.add('status-approved');
+            if (status === 'בוטל') select.classList.add('status-cancelled');
+          }
+          const savedBanner = document.createElement('div');
+          savedBanner.textContent = 'השינויים נשמרו בהצלחה ✅';
+          savedBanner.style.background = '#d4edda';
+          savedBanner.style.color = '#155724';
+          savedBanner.style.border = '1px solid #c3e6cb';
+          savedBanner.style.padding = '10px';
+          savedBanner.style.margin = '20px auto';
+          savedBanner.style.textAlign = 'center';
+          savedBanner.style.borderRadius = '8px';
+          savedBanner.style.maxWidth = '600px';
+          document.body.insertBefore(savedBanner, document.querySelector('.container'));
+
+          // רענון רשימת הכלבים בפנסיון
+          fetch(SHEET_URL)
+            .then(res => res.json())
+            .then(data => {
+              const currentDogs = data.filter(row => {
+                const now = new Date();
+                const checkIn = new Date(row.checkIn);
+                const checkOut = new Date(row.checkOut);
+                return row.status === "מאושר" && checkIn <= now && checkOut >= now;
+              });
+
+              const dogsList = document.getElementById('currentDogsList');
+              dogsList.innerHTML = '';
+              currentDogs.forEach(row => {
+                const li = document.createElement('li');
+                li.textContent = `${row.dogName || 'ללא שם'} (${row.ownerName || 'ללא בעלים'})`;
+                dogsList.appendChild(li);
+              });
+            })
+            .then(() => {
+              // רענון הטבלאות
+              fetch(SHEET_URL)
+                .then(res => res.json())
+                .then(data => {
+                  const futureTbody = document.querySelector("#futureOrdersTable tbody");
+                  const pastTbody = document.querySelector("#pastOrdersTable tbody");
+                  futureTbody.innerHTML = '';
+                  pastTbody.innerHTML = '';
+
+                  data.forEach((row, index) => {
+                    const now = new Date();
+                    const checkOut = new Date(row.checkOut);
+                    let tr = document.createElement("tr");
+
+                    if (checkOut >= now) {
+                      tr.innerHTML = `
+                        <td>${formatDateTime(row.orderDate)}</td>
+                        <td>${row.ownerName || ''}</td>
+                        <td>${row.phone || ''}</td>
+                        <td class="wide-date-column">${formatDateOnly(row.checkIn)}</td>
+                        <td class="wide-date-column">${formatDateOnly(row.checkOut)}</td>
+                        <td>${row.dogName || ''}</td>
+                        <td>${row.dogAge || ''}</td>
+                        <td>${row.dogBreed || ''}</td>
+                        <td>${row.notes || ''}</td>
+                        <td>${row.neutered || ''}</td>
+                        <td>
+                          <select data-index="${index}" class="${row.status === 'מאושר' ? 'status-approved' : row.status === 'בוטל' ? 'status-cancelled' : ''}">
+                            <option value="ממתין" ${row.status === "ממתין" ? "selected" : ""}>ממתין</option>
+                            <option value="מאושר" ${row.status === "מאושר" ? "selected" : ""}>מאושר</option>
+                            <option value="בוטל" ${row.status === "בוטל" ? "selected" : ""}>בוטל</option>
+                          </select>
+                        </td>
+                        <td class="manager-note-column">
+                          <textarea class="admin-note" data-index="${index}" cols="50" rows="2">${row.adminNote || ''}</textarea>
+                        </td>
+                      `;
+                      futureTbody.appendChild(tr);
+                    } else {
+                      tr.innerHTML = `
+                        <td>${formatDateTime(row.orderDate)}</td>
+                        <td>${row.ownerName || ''}</td>
+                        <td>${row.phone || ''}</td>
+                        <td class="wide-date-column">${formatDateOnly(row.checkIn)}</td>
+                        <td class="wide-date-column">${formatDateOnly(row.checkOut)}</td>
+                        <td>${row.dogName || ''}</td>
+                        <td>${row.dogAge || ''}</td>
+                        <td>${row.dogBreed || ''}</td>
+                        <td>${row.notes || ''}</td>
+                        <td>${row.neutered || ''}</td>
+                        <td class="${row.status === 'מאושר' ? 'status-approved' : row.status === 'בוטל' ? 'status-cancelled' : ''}">${row.status || ''}</td>
+                        <td class="manager-note-column">
+                          <textarea class="admin-note" data-index="${index}" cols="50" rows="2">${row.adminNote || ''}</textarea>
+                        </td>
+                      `;
+                      pastTbody.appendChild(tr);
+                    }
+                  });
+                });
+            })
+            .finally(() => {
+              saveBtn.classList.remove('loading');
+            });
+
+          setTimeout(() => {
+            savedBanner.remove();
+          }, 4000);
         });
       });
   </script>
