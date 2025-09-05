@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8" />
+  <title>פנסיון כלבים - הזמנה</title>
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/616/616408.png" type="image/png" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      direction: rtl;
+      color: #111;
+    }
+
+    header {
+      background: #000;
+      color: #fff;
+      padding: 32px 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 2px solid #111;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      font-size: 28px;
+      font-weight: 900;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+      color: #fff;
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    header img {
+      height: 32px;
+      vertical-align: middle;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 32px auto;
+      background: #fff;
+      padding: 32px 24px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h1, h2 {
+      color: #111;
+      text-align: center;
+      font-weight: 800;
+      margin-top: 0;
+      margin-bottom: 28px;
+    }
+
+    form, #adminLogin {
+      margin-bottom: 40px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 14px;
+      margin: 14px 0;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      font-size: 18px;
+      background: #fff;
+      color: #111;
+      outline: none;
+      transition: border 0.15s;
+      text-align: right;
+      box-sizing: border-box;
+    }
+
+    input::placeholder,
+    textarea::placeholder,
+    select::placeholder {
+      text-align: right;
+      color: #999;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: #666;
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    label {
+      font-weight: bold;
+      color: #111;
+      display: block;
+      margin-top: 16px;
+      margin-bottom: 4px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      background: #000;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    button:hover, button:focus {
+      background: #fff;
+      color: #000;
+      border: 1px solid #000;
+    }
+
+    #summaryBox {
+      background: #f0f0f0;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      font-size: 18px;
+      color: #111;
+      white-space: pre-wrap;
+      line-height: 1.5;
+      /* text-align: center; */
+      text-align: right;
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 22px;
+        text-align: center;
+      }
+
+      header {
+        padding: 24px 12px;
+        flex-direction: column;
+      }
+
+      main {
+        margin: 16px;
+        padding: 24px 16px;
+      }
+
+      input, textarea, button {
+        font-size: 16px;
+        padding: 12px;
+      }
+
+      h2 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="dog icon" />
+    <h1>הזמנת מקום בפנסיון כלבים</h1>
+  </header>
+
+  <main>
+    <form id="bookingForm">
+      <input type="text" name="ownerName" placeholder="שם הבעלים" required />
+      <input type="tel" name="phone" placeholder="מספר טלפון" required />
+      <label>תאריך כניסה:</label>
+      <input type="date" name="checkIn" required />
+      <label>תאריך יציאה:</label>
+      <input type="date" name="checkOut" required />
+      <input type="text" name="dogName" placeholder="שם הכלב" required />
+      <input type="number" name="dogAge" placeholder="גיל הכלב (בשנים)" step="0.1" required />
+      <input type="text" name="dogBreed" placeholder="גזע הכלב" required />
+      <label for="neutered">האם הכלב/ה מסורס/מעוקרת?</label>
+      <select name="neutered" id="neutered" required>
+        <option value="" disabled selected>בחר תשובה</option>
+        <option value="כן">כן</option>
+        <option value="לא">לא</option>
+      </select>
+      <textarea name="notes" placeholder="הערות מיוחדות"></textarea>
+      <button type="submit">שלח הזמנה</button>
+    </form>
+
+    <div id="summaryBox">כאן יופיע סיכום ההזמנה לאחר השליחה.</div>
+
+    <div id="adminLogin">
+      <h2>כניסת מנהל</h2>
+      <input type="password" id="adminPassword" placeholder="הכנס סיסמה" />
+      <button onclick="loginAdmin()">כניסה</button>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script>
+    document.querySelectorAll("input[type='date']").forEach(input => {
+      flatpickr(input, {
+        dateFormat: "d/m/Y",
+        locale: {
+          firstDayOfWeek: 0
+        },
+        disableMobile: true,
+        position: "below right"
+      });
+    });
+
+    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyzD8yCSn6HQrCvHZcQCTMknVIvV37cWsQT6UsxjKJaERDLW5yR7W-0vhu7stPbV-p_CA/exec';
+    const ADMIN_PASSWORD = '1234';
+
+    function formatDateWithDay(dateString) {
+      const daysHebrew = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+      const date = new Date(dateString);
+      if (isNaN(date)) return '';
+      const day = ('0' + date.getDate()).slice(-2);
+      const month = ('0' + (date.getMonth() + 1)).slice(-2);
+      const year = date.getFullYear();
+      const dayName = daysHebrew[date.getDay()];
+      return `${day}/${month}/${year} (${dayName})`;
+    }
+
+    document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const obj = Object.fromEntries(formData);
+      if (/^[1-9]\d{8}$/.test(obj.phone)) {
+        obj.phone = '0' + obj.phone;
+      }
+      obj.mode = 'add';
+      obj.neutered = obj.neutered || 'לא צוין';
+      await fetch(SHEET_URL, {
+        method: 'POST',
+        body: JSON.stringify(obj)
+      });
+      const summaryBox = document.getElementById('summaryBox');
+      let summaryText = `סיכום הזמנה:\n\n`;
+      summaryText += `שם הבעלים: ${obj.ownerName}\n`;
+      summaryText += `מספר טלפון: ${obj.phone}\n`;
+      summaryText += `תאריך כניסה: ${formatDateWithDay(obj.checkIn)}\n`;
+      summaryText += `תאריך יציאה: ${formatDateWithDay(obj.checkOut)}\n`;
+      summaryText += `שם הכלב: ${obj.dogName}\n`;
+      summaryText += `גיל הכלב: ${obj.dogAge}\n`;
+      summaryText += `גזע הכלב: ${obj.dogBreed}\n`;
+      summaryText += `מסורס/מעוקרת: ${obj.neutered}\n`;
+      summaryText += `הערות מיוחדות: ${obj.notes || '-'}`;
+      summaryBox.textContent = summaryText;
+      e.target.reset();
+    });
+
+    function loginAdmin() {
+      const pass = document.getElementById('adminPassword').value;
+      if (pass === ADMIN_PASSWORD) {
+        window.location.href = 'admin.html';
+      } else {
+        alert('סיסמה שגויה');
+      }
+    }
+  </script>
+</body>
+</html>
