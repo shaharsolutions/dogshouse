@@ -137,10 +137,11 @@
       try {
         const response = await fetch('https://script.google.com/macros/s/AKfycbwhdv4s2BWLS-Z9QsvRqBSGk6ODoQyUVKu_t4gfsp-WMqSKSY4c_SUtz1nyTOh5IaYQ/exec', {
           method: 'POST',
-          body: JSON.stringify(data),
+          mode: 'cors',
           headers: {
             'Content-Type': 'application/json'
-          }
+          },
+          body: JSON.stringify(data)
         });
 
         const text = await response.text();
